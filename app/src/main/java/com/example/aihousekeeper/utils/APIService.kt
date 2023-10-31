@@ -5,8 +5,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+
 object APIService {
-    private const val BASE_URL = "base_url"
+    private const val BASE_URL = "http://10.0.2.2:8888/"
 
     fun getService(): APIConsumer{
         val client = OkHttpClient.Builder()

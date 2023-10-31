@@ -8,11 +8,19 @@ import android.util.Patterns
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import androidx.core.view.isVisible
+import androidx.lifecycle.ViewModelProvider
 import com.example.aihousekeeper.R
 import com.example.aihousekeeper.databinding.ActivityRegisterBinding
+import com.example.aihousekeeper.datas.ValidateUsernameRequest
+import com.example.aihousekeeper.repositories.AuthRepository
+import com.example.aihousekeeper.utils.APIService
+import com.example.aihousekeeper.view_models.RegisterActivityViewModel
+import com.example.aihousekeeper.view_models.RegisterActivityViewModelFactory
 
 class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyListener, View.OnFocusChangeListener {
     private lateinit var mBinding: ActivityRegisterBinding
+    private lateinit var mViewModel: RegisterActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +31,47 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         mBinding.emailEt.onFocusChangeListener = this
         mBinding.passwordEt.onFocusChangeListener = this
         mBinding.confirmPasswordEt.onFocusChangeListener = this
+        mViewModel = ViewModelProvider(this, RegisterActivityViewModelFactory(AuthRepository(APIService.getService()), application))
+            .get(RegisterActivityViewModel::class.java)
+        setUpObservers()
+    }
+
+    private fun setUpObservers(){
+        mViewModel.getIsLoading().observe(this){
+            mBinding.progressBar.isVisible = it
+        }
+        mViewModel.getIsUsernameUnique().observe(this){
+            if(it){
+                mBinding.usernameTil.apply {
+                    setStartIconDrawable(R.drawable.check_circle_24)
+                    setStartIconTintList(ColorStateList.valueOf(Color.GREEN))
+                    error = null
+                }
+            }
+            else if(!it && mBinding.usernameEt.text.toString().isNotEmpty()){
+                mBinding.usernameTil.apply {
+                    error = "Username is already taken"
+                    startIconDrawable = null
+                }
+            }
+        }
+        mViewModel.getErrorMessage().observe(this){
+            if(it.contains("username")){
+                mBinding.usernameTil.apply {
+                    error = it
+                }
+            }
+            else if(it.contains("email")){
+                mBinding.emailTil.apply {
+                    error = it
+                }
+            }
+            else if(it.contains("password")){
+                mBinding.passwordTil.apply {
+                    error = it
+                }
+            }
+        }
     }
 
     private fun validateUsername(): Boolean{
@@ -91,7 +140,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         }
 
         if(errorMsg != null){
-            mBinding.confirmPasswordEt.apply {
+            mBinding.confirmPasswordTil.apply {
                 error = errorMsg
             }
         }
@@ -111,7 +160,9 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
             when(view.id){
                 R.id.usernameEt -> {
                     if(!isFocused){
-                        validateUsername()
+                        if(validateUsername()){
+                            mViewModel.validateUsername(ValidateUsernameRequest(username = mBinding.usernameEt.text.toString()))
+                        }
                     }
                 }
                 R.id.emailEt -> {
