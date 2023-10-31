@@ -100,10 +100,8 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
             errorMsg = "Invalid email address"
         }
 
-        if(errorMsg != null){
-            mBinding.emailEt.apply {
-                error = errorMsg
-            }
+        mBinding.emailTil.apply {
+            error = errorMsg
         }
 
         return errorMsg == null
@@ -120,8 +118,9 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         }
 
         if(errorMsg != null){
-            mBinding.passwordEt.apply {
+            mBinding.passwordTil.apply {
                 error = errorMsg
+                startIconDrawable = null
             }
         }
 
@@ -142,6 +141,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         if(errorMsg != null){
             mBinding.confirmPasswordTil.apply {
                 error = errorMsg
+                startIconDrawable = null
             }
         }
 
@@ -176,6 +176,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
                         mBinding.passwordTil.apply {
                             setStartIconDrawable(R.drawable.check_circle_24)
                             setStartIconTintList(ColorStateList.valueOf(Color.GREEN))
+                            error = null
                         }
                     }
                 }
@@ -187,6 +188,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
                         mBinding.confirmPasswordTil.apply {
                             setStartIconDrawable(R.drawable.check_circle_24)
                             setStartIconTintList(ColorStateList.valueOf(Color.GREEN))
+                            error = null
                         }
                     }
                 }
