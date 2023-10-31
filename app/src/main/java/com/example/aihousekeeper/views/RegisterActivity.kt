@@ -12,6 +12,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.example.aihousekeeper.R
 import com.example.aihousekeeper.databinding.ActivityRegisterBinding
+import com.example.aihousekeeper.datas.ValidateEmailRequest
 import com.example.aihousekeeper.datas.ValidateUsernameRequest
 import com.example.aihousekeeper.repositories.AuthRepository
 import com.example.aihousekeeper.utils.APIService
@@ -31,8 +32,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         mBinding.emailEt.onFocusChangeListener = this
         mBinding.passwordEt.onFocusChangeListener = this
         mBinding.confirmPasswordEt.onFocusChangeListener = this
-        mViewModel = ViewModelProvider(this, RegisterActivityViewModelFactory(AuthRepository(APIService.getService()), application))
-            .get(RegisterActivityViewModel::class.java)
+        mViewModel = ViewModelProvider(this, RegisterActivityViewModelFactory(AuthRepository(APIService.getService()), application))[RegisterActivityViewModel::class.java]
         setUpObservers()
     }
 
@@ -40,6 +40,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         mViewModel.getIsLoading().observe(this){
             mBinding.progressBar.isVisible = it
         }
+
         mViewModel.getIsUsernameUnique().observe(this){
             if(it){
                 mBinding.usernameTil.apply {
@@ -55,6 +56,23 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
                 }
             }
         }
+
+        mViewModel.getIsEmailUnique().observe(this){
+            if(it){
+                mBinding.emailTil.apply {
+                    setStartIconDrawable(R.drawable.check_circle_24)
+                    setStartIconTintList(ColorStateList.valueOf(Color.GREEN))
+                    error = null
+                }
+            }
+            else if(!it && mBinding.emailEt.text.toString().isNotEmpty()){
+                mBinding.emailTil.apply {
+                    error = "Email already exists"
+                    startIconDrawable = null
+                }
+            }
+        }
+
         mViewModel.getErrorMessage().observe(this){
             if(it.contains("username")){
                 mBinding.usernameTil.apply {
@@ -81,10 +99,8 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
             errorMsg = "Username is required"
         }
 
-        if(errorMsg != null){
-            mBinding.usernameEt.apply {
-                error = errorMsg
-            }
+        mBinding.usernameEt.apply {
+            error = errorMsg
         }
 
         return errorMsg == null
@@ -159,15 +175,13 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         if(view != null){
             when(view.id){
                 R.id.usernameEt -> {
-                    if(!isFocused){
-                        if(validateUsername()){
-                            mViewModel.validateUsername(ValidateUsernameRequest(username = mBinding.usernameEt.text.toString()))
-                        }
+                    if(!isFocused && validateUsername()){
+                        mViewModel.validateUsername(ValidateUsernameRequest(username = mBinding.usernameEt.text.toString()))
                     }
                 }
                 R.id.emailEt -> {
-                    if(!isFocused){
-                        validateEmail()
+                    if(!isFocused && validateEmail()){
+                        mViewModel.validateUserEmail(ValidateEmailRequest(email = mBinding.emailEt.text.toString()))
                     }
                 }
                 R.id.passwordEt -> {
