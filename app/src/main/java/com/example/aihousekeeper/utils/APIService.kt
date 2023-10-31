@@ -1,5 +1,6 @@
 package com.example.aihousekeeper.utils
 
+import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -16,10 +17,14 @@ object APIService {
             .writeTimeout(60, TimeUnit.SECONDS)
             .build()
 
+        val gson = GsonBuilder()
+            .setFieldNamingStrategy(SnakeCaseNamingStrategy())
+            .create()
+
         val builder = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
 
         val retrofit = builder.build()
         return retrofit.create(APIConsumer::class.java)
