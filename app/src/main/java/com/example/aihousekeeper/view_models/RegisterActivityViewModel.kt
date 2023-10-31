@@ -4,22 +4,25 @@ import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aihousekeeper.datas.RegisterUserRequest
 import com.example.aihousekeeper.datas.ValidateEmailRequest
 import com.example.aihousekeeper.datas.ValidateUsernameRequest
 import com.example.aihousekeeper.repositories.AuthRepository
 import com.example.aihousekeeper.utils.RequestStatus
 import kotlinx.coroutines.launch
 
-class RegisterActivityViewModel(val authRepository: AuthRepository, val application: Application): ViewModel() {
+class RegisterActivityViewModel(private val authRepository: AuthRepository, val application: Application): ViewModel() {
     private var isLoading: MutableLiveData<Boolean> = MutableLiveData<Boolean>().apply { value = false }
     private var errorMessage: MutableLiveData<String> = MutableLiveData()
     private var isUsernameUnique: MutableLiveData<Boolean> = MutableLiveData<Boolean>().apply { value = false }
     private var isEmailUnique: MutableLiveData<Boolean> = MutableLiveData<Boolean>().apply { value = false }
+    private var isRegisterCompleted: MutableLiveData<Boolean> = MutableLiveData<Boolean>().apply { value = false }
 
     fun getIsLoading() = isLoading
     fun getErrorMessage() = errorMessage
     fun getIsUsernameUnique() = isUsernameUnique
     fun getIsEmailUnique() = isEmailUnique
+    fun getIsRegesterCompleted() = isRegisterCompleted
 
     fun validateUsername(body: ValidateUsernameRequest){
         viewModelScope.launch {
@@ -54,6 +57,28 @@ class RegisterActivityViewModel(val authRepository: AuthRepository, val applicat
                     }
                     is RequestStatus.Error -> {
                         isLoading.value = false
+                        errorMessage.value = it.message
+                    }
+                }
+            }
+        }
+    }
+
+    fun registerUser(body: RegisterUserRequest){
+        viewModelScope.launch {
+            authRepository.registerUser(body).collect{
+                when(it){
+                    is RequestStatus.Waiting -> {
+                        isRegisterCompleted.value = false
+                        isLoading.value = true
+                    }
+                    is RequestStatus.Success -> {
+                        isLoading.value = false
+                        isRegisterCompleted.value = true
+                    }
+                    is RequestStatus.Error -> {
+                        isLoading.value = false
+                        isRegisterCompleted.value = false
                         errorMessage.value = it.message
                     }
                 }

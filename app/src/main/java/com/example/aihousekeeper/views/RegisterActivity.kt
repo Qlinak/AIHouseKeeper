@@ -2,16 +2,18 @@ package com.example.aihousekeeper.views
 
 import android.content.res.ColorStateList
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import com.example.aihousekeeper.R
 import com.example.aihousekeeper.databinding.ActivityRegisterBinding
+import com.example.aihousekeeper.datas.RegisterUserRequest
 import com.example.aihousekeeper.datas.ValidateEmailRequest
 import com.example.aihousekeeper.datas.ValidateUsernameRequest
 import com.example.aihousekeeper.repositories.AuthRepository
@@ -22,6 +24,7 @@ import com.example.aihousekeeper.view_models.RegisterActivityViewModelFactory
 class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyListener, View.OnFocusChangeListener {
     private lateinit var mBinding: ActivityRegisterBinding
     private lateinit var mViewModel: RegisterActivityViewModel
+    private val TAG: String = "RegisterActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +35,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         mBinding.emailEt.onFocusChangeListener = this
         mBinding.passwordEt.onFocusChangeListener = this
         mBinding.confirmPasswordEt.onFocusChangeListener = this
+        mBinding.registerBtn.setOnClickListener(this)
         mViewModel = ViewModelProvider(this, RegisterActivityViewModelFactory(AuthRepository(APIService.getService()), application))[RegisterActivityViewModel::class.java]
         setUpObservers()
     }
@@ -70,6 +74,12 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
                     error = "Email already exists"
                     startIconDrawable = null
                 }
+            }
+        }
+
+        mViewModel.getIsRegesterCompleted().observe(this){
+            if(it){
+                Log.d(TAG, "registered!!!!!!!!!")
             }
         }
 
@@ -164,7 +174,38 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
         return errorMsg == null
     }
 
-    override fun onClick(p0: View?) {
+    private fun validateB4Submission(): Boolean{
+        return mBinding.usernameTil.error == null
+                && mBinding.emailTil.error == null
+                && mBinding.passwordTil.error == null
+                && mBinding.confirmPasswordTil.error == null
+                && mBinding.usernameEt.text!!.isNotEmpty()
+                && mBinding.emailEt.text!!.isNotEmpty()
+                && mBinding.passwordEt.text!!.isNotEmpty()
+                && mBinding.confirmPasswordEt.text!!.isNotEmpty()
+    }
+
+    override fun onClick(view: View?) {
+        if(view == null){
+            return
+        }
+
+        when(view.id){
+            R.id.registerBtn -> {
+                mBinding.usernameEt.clearFocus()
+                mBinding.emailEt.clearFocus()
+                mBinding.passwordEt.clearFocus()
+                mBinding.confirmPasswordEt.clearFocus()
+
+                if(validateB4Submission()){
+                    mViewModel.registerUser(
+                        RegisterUserRequest(
+                            username = mBinding.usernameEt.text.toString(),
+                            email = mBinding.emailEt.text.toString(),
+                            password = mBinding.confirmPasswordEt.text.toString()))
+                }
+            }
+        }
     }
 
     override fun onKey(p0: View?, p1: Int, p2: KeyEvent?): Boolean {
