@@ -1,5 +1,6 @@
 package com.example.aihousekeeper.repositories
 
+import com.example.aihousekeeper.datas.LoginUserRequest
 import com.example.aihousekeeper.datas.RegisterUserRequest
 import com.example.aihousekeeper.datas.ValidateEmailRequest
 import com.example.aihousekeeper.datas.ValidateUsernameRequest
@@ -39,6 +40,22 @@ class AuthRepository(private val consumer: APIConsumer) {
         }
         else{
             emit(RequestStatus.Error(response.errorBody().toString()))
+        }
+    }
+
+    fun loginUser(body: LoginUserRequest) = flow {
+        emit(RequestStatus.Waiting)
+        val response = consumer.loginUser(body)
+        if(response.isSuccessful){
+            emit(RequestStatus.Success(response.body()))
+        }
+        else{
+            if(response.code() == 400){
+                emit(RequestStatus.Error("Username or password not correct"))
+            }
+            else{
+                emit(RequestStatus.Error("Unknown server error, please try again"))
+            }
         }
     }
 }

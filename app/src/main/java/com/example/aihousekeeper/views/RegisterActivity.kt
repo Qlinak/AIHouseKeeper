@@ -1,9 +1,9 @@
 package com.example.aihousekeeper.views
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.util.Patterns
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -79,7 +79,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, View.OnKeyLi
 
         mViewModel.getIsRegesterCompleted().observe(this){
             if(it){
-                Log.d(TAG, "registered!!!!!!!!!")
+                startActivity(Intent(this, LoginActivity::class.java))
             }
         }
 

@@ -14,4 +14,7 @@ interface APIConsumer {
 
     @POST("Authorisation/SignUp")
     suspend fun registerUser(@Body body: RegisterUserRequest) : Response<Void>
+
+    @POST("Authorisation/SignIn")
+    suspend fun loginUser(@Body body: LoginUserRequest) : Response<LoginUserResponse>
 }
