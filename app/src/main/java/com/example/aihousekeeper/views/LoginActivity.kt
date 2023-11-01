@@ -50,10 +50,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun validateB4Submission(): Boolean{
-        return mBinding.usernameTil.error == null
-                && mBinding.passwordTil.error == null
-                && mBinding.usernameEt.text!!.isNotEmpty()
-                && mBinding.passwordEt.text!!.isNotEmpty()
+        return mBinding.usernameEt.text!!.isNotEmpty() && mBinding.passwordEt.text!!.isNotEmpty()
     }
 
     override fun onClick(view: View?) {
