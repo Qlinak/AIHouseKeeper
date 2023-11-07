@@ -17,4 +17,7 @@ interface APIConsumer {
 
     @POST("Authorisation/SignIn")
     suspend fun loginUser(@Body body: LoginUserRequest) : Response<LoginUserResponse>
+
+    @POST("Ai/Prompt")
+    suspend fun askAi(@Body body: PromptRequest): Response<PromptResponse>
 }
