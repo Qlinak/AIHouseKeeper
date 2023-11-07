@@ -3,6 +3,7 @@ package com.example.aihousekeeper.utils
 import com.example.aihousekeeper.datas.*
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface APIConsumer {
@@ -19,5 +20,7 @@ interface APIConsumer {
     suspend fun loginUser(@Body body: LoginUserRequest) : Response<LoginUserResponse>
 
     @POST("Ai/Prompt")
-    suspend fun askAi(@Body body: PromptRequest): Response<PromptResponse>
+    suspend fun askAi(
+        @Header("Authorization") authToken: String,
+        @Body body: PromptRequest): Response<PromptResponse>
 }

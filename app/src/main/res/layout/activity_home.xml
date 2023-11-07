@@ -6,22 +6,21 @@
     android:layout_height="match_parent"
     android:layout_margin="8dp"
     android:orientation="vertical"
-    android:gravity="center"
     tools:context=".views.HomeActivity">
 
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/displayBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter the text"
         android:inputType="text" />
 
     <Button
-        android:id="@+id/textToSpeechBtn"
+        android:id="@+id/askAiBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Text To Speech" />
+        android:text="Ask Ai" />
     <Button
         android:id="@+id/speechToTextBtn"
         android:layout_width="match_parent"

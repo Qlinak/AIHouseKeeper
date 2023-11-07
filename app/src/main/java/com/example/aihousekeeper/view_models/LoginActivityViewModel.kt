@@ -30,6 +30,7 @@ class LoginActivityViewModel(private val authRepository: AuthRepository, val app
                         isLoading.value = false
                         isLoginCompleted.value = true
                         AuthToken.getInstance(application.baseContext).token = it.data!!.token
+                        AuthToken.getInstance(application.baseContext).userId = it.data.id.toString()
                     }
                     is RequestStatus.Error -> {
                         isLoading.value = false
