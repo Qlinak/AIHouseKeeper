@@ -2,78 +2,95 @@ package com.example.aihousekeeper.views
 
 import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.speech.tts.TextToSpeech
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
+import android.view.LayoutInflater
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.aihousekeeper.R
-import java.util.Locale
+import com.example.aihousekeeper.databinding.ActivityHomeBinding
+import com.example.aihousekeeper.datas.PromptRequest
+import com.example.aihousekeeper.repositories.AiRepository
+import com.example.aihousekeeper.utils.APIService
+import com.example.aihousekeeper.view_models.HomeActivityViewModel
+import com.example.aihousekeeper.view_models.HomeActivityViewModelFactory
+import java.util.*
 
-class HomeActivity : AppCompatActivity() {
-    private lateinit var textToSpeech: TextToSpeech
-    private lateinit var editText: EditText
+class HomeActivity : AppCompatActivity(), View.OnClickListener {
+    private lateinit var mBinding: ActivityHomeBinding
+    private lateinit var mViewModel: HomeActivityViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home)
+        mBinding = ActivityHomeBinding.inflate(LayoutInflater.from(this))
+        setContentView(mBinding.root)
+        mBinding.speechToTextBtn.setOnClickListener(this)
+        mBinding.askAiBtn.setOnClickListener(this)
+        mViewModel = ViewModelProvider(
+            this,
+            HomeActivityViewModelFactory(
+                AiRepository(APIService.getService(), application),
+                application
+            )
+        )[HomeActivityViewModel::class.java]
+        setUpObservers()
+    }
 
-        editText = findViewById<EditText>(R.id.editText)
-        val textToSpeechBtn = findViewById<Button>(R.id.textToSpeechBtn)
+    private fun setUpObservers() {
+        mViewModel.getIsLoading().observe(this) {
+            // ignore for now
+        }
+        mViewModel.getDisplayMessage().observe(this) {
+            mBinding.displayBox.setText(it)
+        }
+        mViewModel.getErrorMessage().observe(this) {
+            if (it.isNotEmpty()) {
+                mBinding.displayBox.error = it
+            } else {
+                mBinding.displayBox.error = null
+            }
+        }
+    }
 
-        textToSpeech = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                val result = textToSpeech.setLanguage(Locale.getDefault())
-                if (result == TextToSpeech.LANG_MISSING_DATA
-                    || result == TextToSpeech.LANG_NOT_SUPPORTED
-                ) {
-                    Toast.makeText(this, "language is not supported", Toast.LENGTH_LONG).show()
+    override fun onClick(view: View?) {
+        if (view == null) {
+            return
+        }
+
+        when (view.id) {
+            R.id.speechToTextBtn -> {
+                mBinding.displayBox.text = null
+                try {
+                    val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                    intent.putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                    )
+                    intent.putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE,
+                        Locale.getDefault()
+                    )
+                    intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say something")
+                    result.launch(intent)
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
-        }
-        textToSpeechBtn.setOnClickListener {
-            if (editText.text.toString().trim().isNotEmpty()) {
-                textToSpeech.speak(
-                    editText.text.toString().trim(),
-                    TextToSpeech.QUEUE_FLUSH,
-                    null,
-                    null
-                )
-            } else {
-                Toast.makeText(this, "Required", Toast.LENGTH_LONG).show()
-            }
-        }
-
-        val speechToTextBtn = findViewById<Button>(R.id.speechToTextBtn)
-        speechToTextBtn.setOnClickListener {
-            editText.text = null
-            try {
-                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                intent.putExtra(
-                    RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                    RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-                )
-                intent.putExtra(
-                    RecognizerIntent.EXTRA_LANGUAGE,
-                    Locale.getDefault()
-                )
-                intent.putExtra(RecognizerIntent.EXTRA_PROMPT,"Say something")
-                result.launch(intent)
-            }catch (e:Exception){
-                e.printStackTrace()
+            R.id.askAiBtn -> {
+                mViewModel.askAi(body = PromptRequest(userId = 5, content = mBinding.displayBox.text.toString()))
             }
         }
     }
-    val result = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-            result->
-        if (result.resultCode == Activity.RESULT_OK){
-            val results = result.data?.getStringArrayListExtra(
-                RecognizerIntent.EXTRA_RESULTS
-            ) as ArrayList<String>
 
-            editText.setText(results[0])
+    val result =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val results = result.data?.getStringArrayListExtra(
+                    RecognizerIntent.EXTRA_RESULTS
+                ) as ArrayList<String>
+
+                mBinding.displayBox.setText(results[0])
+            }
         }
-    }
 }

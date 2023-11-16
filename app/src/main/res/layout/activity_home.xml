@@ -10,17 +10,17 @@
 
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/displayBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Ask Housekeeper"
         android:inputType="text" />
 
     <Button
-        android:id="@+id/textToSpeechBtn"
+        android:id="@+id/askAiBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Text To Speech" />
+        android:text="Ask Ai" />
     <Button
         android:id="@+id/speechToTextBtn"
         android:layout_width="match_parent"
