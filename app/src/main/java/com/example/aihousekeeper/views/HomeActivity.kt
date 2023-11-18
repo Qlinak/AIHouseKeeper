@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ScrollView
@@ -50,13 +52,15 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
             val aiResponse = message
             val userMessage = mBinding.displayBox.text.toString()
 
+            if (userMessage.isNotEmpty()) {
+                chatMessages.add(userMessage)
+            }
+
             if (aiResponse.isNotEmpty()) {
                 chatMessages.add(aiResponse)
             }
 
-            if (userMessage.isNotEmpty()) {
-                chatMessages.add(userMessage)
-            }
+
 
             updateChatHistory()
         }
@@ -97,15 +101,13 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
 
             R.id.askAiBtn -> {
                 val userMessage = mBinding.displayBox.text.toString()
-                chatMessages.add(userMessage)
                 mViewModel.askAi(
                     PromptRequest(
-                        userId = 5,
+                        userId = 2,
                         content = userMessage
                     )
                 )
                 mBinding.displayBox.text = null
-                updateChatHistory()
             }
         }
     }
@@ -115,11 +117,29 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
         val chatMessagesLayout = mBinding.chatMessagesLayout
         chatMessagesLayout.removeAllViews()
 
-        for (message in chatMessages) {
+        for (i in chatMessages.indices) {
+            val message = chatMessages[i]
             val messageView =
                 layoutInflater.inflate(R.layout.message_item, chatMessagesLayout, false)
             val messageTextView = messageView.findViewById<TextView>(R.id.messageTextView)
             messageTextView.text = message
+
+            // Set alignment based on message type
+            val alignment = if (i % 3 != 0) {
+                Gravity.START // AI response alignment (left)
+            } else {
+                Gravity.END // User message alignment (right)
+            }
+            messageTextView.gravity = alignment
+
+            // Set background drawable based on message type
+            val backgroundDrawable = if (i % 3 != 0) {
+                R.drawable.bubble_green // AI response background
+            } else {
+                R.drawable.bubble_blue // User message background
+            }
+            messageTextView.setBackgroundResource(backgroundDrawable)
+
             chatMessagesLayout.addView(messageView)
         }
 
