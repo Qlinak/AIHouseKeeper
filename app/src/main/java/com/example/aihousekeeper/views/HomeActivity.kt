@@ -123,6 +123,7 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
             val messageView =
                 layoutInflater.inflate(R.layout.message_item, chatMessagesLayout, false)
             val messageTextView = messageView.findViewById<TextView>(R.id.messageTextView)
+            val headIconImageView = messageView.findViewById<ImageView>(R.id.headIconImageView)
             messageTextView.text = message
 
             // Set alignment based on message type
