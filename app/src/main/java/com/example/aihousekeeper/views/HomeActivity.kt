@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
@@ -139,6 +140,15 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
                 R.drawable.bubble_blue // User message background
             }
             messageTextView.setBackgroundResource(backgroundDrawable)
+
+
+            // Set head icon based on message type
+            val headIconDrawable = if (i % 3 != 0) {
+                R.drawable.ai // AI response head icon
+            } else {
+                R.drawable.user // User message head icon
+            }
+            headIconImageView.setImageResource(headIconDrawable)
 
             chatMessagesLayout.addView(messageView)
         }
