@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ScrollView
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +23,8 @@ import java.util.*
 class HomeActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mBinding: ActivityHomeBinding
     private lateinit var mViewModel: HomeActivityViewModel
+    private val chatMessages: MutableList<String> = mutableListOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityHomeBinding.inflate(LayoutInflater.from(this))
@@ -37,12 +41,24 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
         setUpObservers()
     }
 
+
     private fun setUpObservers() {
         mViewModel.getIsLoading().observe(this) {
             // ignore for now
         }
-        mViewModel.getDisplayMessage().observe(this) {
-            mBinding.displayBox.setText(it)
+        mViewModel.getDisplayMessage().observe(this) { message ->
+            val aiResponse = message
+            val userMessage = mBinding.displayBox.text.toString()
+
+            if (aiResponse.isNotEmpty()) {
+                chatMessages.add(aiResponse)
+            }
+
+            if (userMessage.isNotEmpty()) {
+                chatMessages.add(userMessage)
+            }
+
+            updateChatHistory()
         }
         mViewModel.getErrorMessage().observe(this) {
             if (it.isNotEmpty()) {
@@ -52,6 +68,7 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
+
 
     override fun onClick(view: View?) {
         if (view == null) {
@@ -77,9 +94,38 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
                     e.printStackTrace()
                 }
             }
+
             R.id.askAiBtn -> {
-                mViewModel.askAi(body = PromptRequest(userId = 5, content = mBinding.displayBox.text.toString()))
+                val userMessage = mBinding.displayBox.text.toString()
+                chatMessages.add(userMessage)
+                mViewModel.askAi(
+                    PromptRequest(
+                        userId = 5,
+                        content = userMessage
+                    )
+                )
+                mBinding.displayBox.text = null
+                updateChatHistory()
             }
+        }
+    }
+
+    private fun updateChatHistory() {
+        val layoutInflater = LayoutInflater.from(this)
+        val chatMessagesLayout = mBinding.chatMessagesLayout
+        chatMessagesLayout.removeAllViews()
+
+        for (message in chatMessages) {
+            val messageView =
+                layoutInflater.inflate(R.layout.message_item, chatMessagesLayout, false)
+            val messageTextView = messageView.findViewById<TextView>(R.id.messageTextView)
+            messageTextView.text = message
+            chatMessagesLayout.addView(messageView)
+        }
+
+        chatMessagesLayout.post {
+            val scrollView = mBinding.scrollView
+            scrollView.fullScroll(ScrollView.FOCUS_DOWN)
         }
     }
 
@@ -89,7 +135,6 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
                 val results = result.data?.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS
                 ) as ArrayList<String>
-
                 mBinding.displayBox.setText(results[0])
             }
         }
