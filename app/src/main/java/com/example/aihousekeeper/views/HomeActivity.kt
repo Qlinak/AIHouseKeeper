@@ -1,7 +1,11 @@
 package com.example.aihousekeeper.views
 
 import android.app.Activity
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.util.Log
@@ -11,8 +15,10 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.aihousekeeper.R
 import com.example.aihousekeeper.databinding.ActivityHomeBinding
@@ -117,6 +123,7 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
         val layoutInflater = LayoutInflater.from(this)
         val chatMessagesLayout = mBinding.chatMessagesLayout
         chatMessagesLayout.removeAllViews()
+        var showToastStatementStored = false // Flag to track if "toast: statement stored" is the newest response
 
         for (i in chatMessages.indices) {
             val message = chatMessages[i]
@@ -142,22 +149,56 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
             }
             messageTextView.setBackgroundResource(backgroundDrawable)
 
-
             // Set head icon based on message type
-            val headIconDrawable = if (i % 3 != 0) {
+            val headIconDrawable = if (i % 3 == 1) {
                 R.drawable.ai // AI response head icon
             } else {
                 R.drawable.user // User message head icon
             }
-            headIconImageView.setImageResource(headIconDrawable)
-
+            if (i % 3 != 2) {
+                headIconImageView.setImageResource(headIconDrawable)
+            }
+            else{
+                headIconImageView.visibility = View.GONE // Hide head icon
+            }
             chatMessagesLayout.addView(messageView)
+
+            // Check if the newest response is "toast: statement stored"
+            showToastStatementStored = message == "toast: statement stored"
+        }
+
+        // Show toast for the newest response if it is "toast: statement stored"
+        if (showToastStatementStored) {
+            showToast("Statement stored")
         }
 
         chatMessagesLayout.post {
             val scrollView = mBinding.scrollView
             scrollView.fullScroll(ScrollView.FOCUS_DOWN)
         }
+    }
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+    private fun showNotification(message: String) {
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "channel_id",
+                "Channel Name",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val notificationBuilder = NotificationCompat.Builder(this, "channel_id")
+            .setContentTitle("Notification Title")
+            .setContentText(message)
+            .setSmallIcon(R.drawable.notification_icon)
+            .setAutoCancel(true)
+
+        notificationManager.notify(0, notificationBuilder.build())
     }
 
     val result =
