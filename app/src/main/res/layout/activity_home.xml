@@ -6,25 +6,39 @@
     android:layout_height="match_parent"
     android:layout_margin="8dp"
     android:orientation="vertical"
-    tools:context=".views.HomeActivity">
+    tools:context=".HomeActivity">
 
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/chatMessagesLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
 
     <EditText
         android:id="@+id/displayBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter the text"
+        android:hint="Ask Housekeeper"
         android:inputType="text" />
 
     <Button
         android:id="@+id/askAiBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ask Ai" />
+        android:text="Ask AI" />
+
     <Button
         android:id="@+id/speechToTextBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Speech To Text" />
-</LinearLayout>
 
+</LinearLayout>
