@@ -5,8 +5,8 @@
 
     <ImageView
         android:id="@+id/headIconImageView"
-        android:layout_width="72dp"
-        android:layout_height="72dp" />
+        android:layout_width="48dp"
+        android:layout_height="48dp" />
 
     <TextView
         android:id="@+id/messageTextView"
