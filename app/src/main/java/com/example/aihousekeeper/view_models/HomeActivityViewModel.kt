@@ -13,6 +13,7 @@ class HomeActivityViewModel(private val aiRepository: AiRepository, val applicat
     private var isLoading: MutableLiveData<Boolean> = MutableLiveData<Boolean>().apply { value = false }
     private var errorMessage: MutableLiveData<String> = MutableLiveData()
     private var displayMessage: MutableLiveData<String> = MutableLiveData()
+    private var memoryList: MutableLiveData<List<String>> = MutableLiveData()
 
     fun getIsLoading() = isLoading
     fun getErrorMessage() = errorMessage
@@ -29,6 +30,26 @@ class HomeActivityViewModel(private val aiRepository: AiRepository, val applicat
                     is RequestStatus.Success -> {
                         isLoading.value = false
                         displayMessage.value = it.data!!.message
+                    }
+                    is RequestStatus.Error -> {
+                        isLoading.value = false
+                        errorMessage.value = it.message
+                    }
+                }
+            }
+        }
+    }
+
+    fun getMemory(){
+        viewModelScope.launch {
+            aiRepository.getMemory().collect{
+                when(it){
+                    is RequestStatus.Waiting -> {
+                        isLoading.value = true
+                    }
+                    is RequestStatus.Success -> {
+                        isLoading.value = false
+                        memoryList.value = it.data
                     }
                     is RequestStatus.Error -> {
                         isLoading.value = false

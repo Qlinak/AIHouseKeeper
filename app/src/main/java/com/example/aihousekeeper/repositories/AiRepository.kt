@@ -20,4 +20,17 @@ class AiRepository(private val consumer: APIConsumer, val application: Applicati
             emit(RequestStatus.Error("something went wrong..."))
         }
     }
+
+    fun getMemory() = flow{
+        emit(RequestStatus.Waiting)
+        val response = consumer.getMemory(
+            AuthToken.getInstance(application.baseContext).token!!,
+            AuthToken.getInstance(application.baseContext).userId!!)
+        if(response.isSuccessful){
+            emit(RequestStatus.Success(response.body()))
+        }
+        else{
+            emit(RequestStatus.Error("something went wrong..."))
+        }
+    }
 }
