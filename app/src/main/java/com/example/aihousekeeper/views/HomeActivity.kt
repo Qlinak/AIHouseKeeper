@@ -124,6 +124,10 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
                     showToast("Don't be rude to me master >_<")
                     return
                 }
+                else if(mViewModel.getIsLoading().value == true){
+                    showToast("Processing your last request, be patient >_<")
+                    return
+                }
 
                 mViewModel.askAi(
                     PromptRequest(
