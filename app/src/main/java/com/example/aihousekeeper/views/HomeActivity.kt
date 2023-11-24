@@ -140,6 +140,14 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
 
             R.id.historyBtn -> {
                 mViewModel.getMemory()
+                if (mViewModel.getErrorMessage().value.isNullOrEmpty()) {
+                    val historyIntent = Intent(this, HistoryActivity::class.java)
+                    historyIntent.putStringArrayListExtra("chatHistory", ArrayList(chatMessages))
+                    startActivity(historyIntent)
+                } else {
+                    showToast(mViewModel.getErrorMessage().value!!)
+                }
+
             }
         }
     }
