@@ -1,3 +1,5 @@
+package com.example.aihousekeeper.views
+
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.ListView
@@ -15,11 +17,9 @@ class HistoryActivity : AppCompatActivity() {
 
         chatHistoryListView = findViewById(R.id.chatHistoryListView)
 
-        // Example chat history data
-        chatHistoryList = ArrayList()
+        val history = intent.getStringArrayListExtra("History")
+        chatHistoryList = history!!
 
-
-        // Create and set the adapter
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, chatHistoryList)
         chatHistoryListView.adapter = adapter
     }

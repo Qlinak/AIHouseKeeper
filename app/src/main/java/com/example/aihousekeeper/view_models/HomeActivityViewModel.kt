@@ -19,6 +19,8 @@ class HomeActivityViewModel(private val aiRepository: AiRepository, val applicat
     fun getErrorMessage() = errorMessage
     fun getDisplayMessage() = displayMessage
 
+    fun getMemoryList() = memoryList
+
     fun askAi(body: PromptRequest){
         viewModelScope.launch {
             aiRepository.askAi(body).collect{

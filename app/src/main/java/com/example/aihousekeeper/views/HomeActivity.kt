@@ -24,6 +24,7 @@ import com.example.aihousekeeper.databinding.ActivityHomeBinding
 import com.example.aihousekeeper.datas.PromptRequest
 import com.example.aihousekeeper.repositories.AiRepository
 import com.example.aihousekeeper.utils.APIService
+import com.example.aihousekeeper.utils.AuthToken
 import com.example.aihousekeeper.view_models.HomeActivityViewModel
 import com.example.aihousekeeper.view_models.HomeActivityViewModelFactory
 import java.util.*
@@ -39,6 +40,7 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(mBinding.root)
         mBinding.speechToTextBtn.setOnClickListener(this)
         mBinding.askAiBtn.setOnClickListener(this)
+        mBinding.historyBtn.setOnClickListener(this)
         mViewModel = ViewModelProvider(
             this,
             HomeActivityViewModelFactory(
@@ -75,6 +77,13 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
                 mBinding.displayBox.error = it
             } else {
                 mBinding.displayBox.error = null
+            }
+        }
+        mViewModel.getMemoryList().observe(this){
+            if(it.isNotEmpty()){
+                val intent = Intent(this, HistoryActivity::class.java)
+                intent.putStringArrayListExtra("History", ArrayList(it))
+                startActivity(intent)
             }
         }
     }
@@ -118,7 +127,7 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
 
                 mViewModel.askAi(
                     PromptRequest(
-                        userId = 2,
+                        userId = AuthToken.getInstance(application.baseContext).userId!!.toLong(),
                         content = userMessage
                     )
                 )
@@ -127,13 +136,6 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
 
             R.id.historyBtn -> {
                 mViewModel.getMemory()
-                if(mViewModel.getErrorMessage().value == null
-                    || mViewModel.getErrorMessage().value!!.isEmpty()){
-//                    startActivity(Intent(this, LoginActivity::class.java))
-                }
-                else{
-                    showToast(mViewModel.getErrorMessage().value!!)
-                }
             }
         }
     }
