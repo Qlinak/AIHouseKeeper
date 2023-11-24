@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -108,6 +107,15 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
 
             R.id.askAiBtn -> {
                 val userMessage = mBinding.displayBox.text.toString()
+                if(userMessage.isEmpty()){
+                    showToast("Press the voice button or type something!")
+                    return
+                }
+                else if(userMessage.contains("*")){
+                    showToast("Don't be rude to me master >_<")
+                    return
+                }
+
                 mViewModel.askAi(
                     PromptRequest(
                         userId = 2,
@@ -164,7 +172,7 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
             chatMessagesLayout.addView(messageView)
 
             // Check if the newest response is "toast: statement stored"
-            showToastStatementStored = message == "toast: statement stored"
+            showToastStatementStored = message == "Copy that my master."
         }
 
         // Show toast for the newest response if it is "toast: statement stored"
