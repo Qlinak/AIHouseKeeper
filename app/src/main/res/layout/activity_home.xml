@@ -8,6 +8,17 @@
     android:orientation="vertical"
     tools:context=".views.HomeActivity">
 
+
+    <ImageButton
+        android:id="@+id/historyBtn"
+        android:layout_width="90dp"
+        android:layout_height="100dp"
+        android:layout_gravity="end"
+        android:src="@drawable/history"
+        android:background="@null"/>
+
+
+
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
