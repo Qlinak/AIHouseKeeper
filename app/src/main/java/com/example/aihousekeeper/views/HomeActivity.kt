@@ -124,6 +124,17 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
                 )
                 mBinding.displayBox.text = null
             }
+
+            R.id.historyBtn -> {
+                mViewModel.getMemory()
+                if(mViewModel.getErrorMessage().value == null
+                    || mViewModel.getErrorMessage().value!!.isEmpty()){
+//                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+                else{
+                    showToast(mViewModel.getErrorMessage().value!!)
+                }
+            }
         }
     }
 
