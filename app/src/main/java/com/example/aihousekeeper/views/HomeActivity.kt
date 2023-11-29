@@ -1,6 +1,7 @@
 package com.example.aihousekeeper.views
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -41,6 +42,7 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
         mBinding.speechToTextBtn.setOnClickListener(this)
         mBinding.askAiBtn.setOnClickListener(this)
         mBinding.historyBtn.setOnClickListener(this)
+        mBinding.logoutBtn.setOnClickListener(this)
         mViewModel = ViewModelProvider(
             this,
             HomeActivityViewModelFactory(
@@ -140,7 +142,23 @@ class HomeActivity : AppCompatActivity(), View.OnClickListener {
 
             R.id.historyBtn -> {
                 mViewModel.getMemory()
+            }
 
+            R.id.logoutBtn -> {
+                val alertDialogBuilder = AlertDialog.Builder(this)
+                    .setTitle("Logout")
+                    .setMessage("Are you sure you want to log out?")
+                    .setPositiveButton("Yes") { dialog, which ->
+                        AuthToken.getInstance(application.baseContext).token = null
+                        AuthToken.getInstance(application.baseContext).userId = null
+                        startActivity(Intent(this, LoginActivity::class.java))
+                    }
+                    .setNegativeButton("No") { dialog, which ->
+                        // User clicked "No", do nothing
+                    }
+
+                val alertDialog = alertDialogBuilder.create()
+                alertDialog.show()
             }
         }
     }

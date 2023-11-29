@@ -8,4 +8,6 @@
     <string name="login">LOGIN</string>
     <string name="newUserHint">New user? Click</string>
     <string name="home_page">Home Page</string>
+    <string name="log_out_description">log out</string>
+    <string name="show_my_memories">show my memories</string>
 </resources>

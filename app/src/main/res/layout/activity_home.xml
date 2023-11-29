@@ -33,7 +33,22 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@null"
-        android:src="@drawable/history" />
+        android:src="@drawable/history"
+        android:contentDescription="@string/show_my_memories" />
+
+    <ImageView
+        android:id="@+id/logoutBtn"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@null"
+        android:src="@drawable/logout"
+        android:contentDescription="@string/log_out_description" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
